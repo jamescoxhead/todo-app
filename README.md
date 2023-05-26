@@ -28,5 +28,4 @@ To keep things simple this repo loosely follows [Trunk-based development](https:
 * Gradually expand the application to include more functionality. *TODO: create a backlog*
 * CQRS/Mediatr
 * Identity
-
 * .NET 7

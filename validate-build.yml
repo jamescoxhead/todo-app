@@ -1,0 +1,45 @@
+pr:
+  branches:
+    include:
+    - main
+
+pool:
+  vmImage: 'ubunu-latest'
+
+variables:
+  dotnetVersion: 6.x
+  solutionName: TodoApp.sln
+  buildConfiguration: Release
+
+steps:
+- task: UseDotNet@2
+  displayName: 'Use .NET $(dotnetVersion)'
+  inputs:
+    version: $(dotnetVersion)
+
+- task: DotNetCoreCLI@2
+  displayName: 'Restore NuGet packages'
+  inputs:
+    command: restore
+    projects: $(solution)
+
+- task: DotNetCoreCLI@2
+  displayName: 'Build solution'
+  inputs:
+    command: build
+    projects: $(solution)
+    arguments: '--configuration $(buildConfiguration) --no-restore'
+
+- task: DotNetCoreCLI@2
+  displayName: 'Run tests'
+  inputs:
+    command: test
+    projects: '**/*.@(Unit|Integration)Tests.csproj'
+    arguments: '--configuration $(buildConfiguration) --no-restore --collect:"XPlat Code Coverage" -- DataCollectionRunSettings.DataCollectors.DataCollector.Configuration.Format=cobertura'
+    publishTestResults: true
+
+- task: PublishCodeCoverageResults@1
+  displayName: 'Publish code coverage'
+  inputs:
+    codeCoverageTool: 'Cobertura'
+    summaryFileLocation: '$(Agent.TempDirectory)/**/coverage.cobertura.xml'
