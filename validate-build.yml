@@ -4,7 +4,7 @@ pr:
     - main
 
 pool:
-  vmImage: 'ubunu-latest'
+  vmImage: 'ubuntu-latest'
 
 variables:
   dotnetVersion: 6.x
