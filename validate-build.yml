@@ -35,7 +35,7 @@ steps:
   inputs:
     command: test
     projects: '**/*.@(Unit|Integration)Tests.csproj'
-    arguments: '--configuration $(buildConfiguration) --no-restore --settings coverlet.runsettings
+    arguments: '--configuration $(buildConfiguration) --no-restore --settings coverlet.runsettings'
     publishTestResults: true
 
 - task: PublishCodeCoverageResults@1
