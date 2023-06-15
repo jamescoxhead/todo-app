@@ -10,8 +10,13 @@ namespace TodoApp.Api.Controllers;
 public class TodoTasksController : ControllerBase
 {
     private readonly ITodoTaskService todoTaskService;
+    private readonly ILogger<TodoTasksController> logger;
 
-    public TodoTasksController(ITodoTaskService todoTaskService) => this.todoTaskService = todoTaskService ?? throw new ArgumentNullException(nameof(todoTaskService));
+    public TodoTasksController(ITodoTaskService todoTaskService, ILogger<TodoTasksController> logger)
+    {
+        this.todoTaskService = todoTaskService ?? throw new ArgumentNullException(nameof(todoTaskService));
+        this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
+    }
 
     [HttpGet]
     [ProducesResponseType(typeof(TodoTaskDto[]), StatusCodes.Status200OK)]
@@ -64,14 +69,14 @@ public class TodoTasksController : ControllerBase
 
             return this.Ok(responseModel);
         }
-        catch (NotFoundException)
+        catch (NotFoundException ex)
         {
-            // TODO: Log exception
-            // TODO: Return error body
+            this.logger.LogError(ex, "Could not find Todo Task with ID {Id}", id);
             return this.NotFound();
         }
-        catch (Exception)
+        catch (Exception ex)
         {
+            this.logger.LogError(ex, "Could not update Todo Task with ID {Id}", id);
             return this.BadRequest();
         }
     }
@@ -86,14 +91,14 @@ public class TodoTasksController : ControllerBase
         {
             await this.todoTaskService.DeleteTodoTask(id);
         }
-        catch (NotFoundException)
+        catch (NotFoundException ex)
         {
-            // TODO: Log exception
-            // TODO: Return error body
+            this.logger.LogError(ex, "Could not find Todo Task with ID {Id}", id);
             return this.NotFound();
         }
-        catch (Exception)
+        catch (Exception ex)
         {
+            this.logger.LogError(ex, "Could not update Todo Task with ID {Id}", id);
             return this.BadRequest();
         }
 

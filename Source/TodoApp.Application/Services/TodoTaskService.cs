@@ -17,8 +17,8 @@ public class TodoTaskService : ITodoTaskService
 
     public TodoTaskService(ITodoDbContext dataContext, IMapper mapper)
     {
-        this.dbContext = dataContext;
-        this.mapper = mapper;
+        this.dbContext = dataContext ?? throw new ArgumentNullException(nameof(dataContext));
+        this.mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
     }
 
     public async Task<TodoTaskDto> CreateTodoTask(CreateTodoTaskDto createTask)

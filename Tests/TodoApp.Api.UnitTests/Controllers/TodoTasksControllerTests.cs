@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 using TodoApp.Api.Controllers;
 using TodoApp.Application.Dtos;
 using TodoApp.Application.Interfaces;
@@ -9,6 +10,7 @@ namespace TodoApp.Api.UnitTests.Controllers;
 public class TodoTasksControllerTests
 {
     private readonly Mock<ITodoTaskService> mockTodoTaskService = new();
+    private readonly Mock<ILogger<TodoTasksController>> mockLogger = new();
 
     [SetUp]
     public void TestCaseSetUp() => this.mockTodoTaskService.Reset();
@@ -16,9 +18,17 @@ public class TodoTasksControllerTests
     [Test]
     public void Contructor_ShouldThrowNullReferenceException_WhenTodoTaskServiceIsNull()
     {
-        var action = () => new TodoTasksController(null!);
+        var action = () => new TodoTasksController(null!, this.mockLogger.Object);
 
         action.Should().ThrowExactly<ArgumentNullException>().WithParameterName("todoTaskService");
+    }
+
+    [Test]
+    public void Constructor_Should_ThrowArgumentNullException_WhenLoggerIsNull()
+    {
+        var action = () => new TodoTasksController(this.mockTodoTaskService.Object, null!);
+
+        action.Should().ThrowExactly<ArgumentNullException>().WithParameterName("logger");
     }
 
     [Test]
@@ -188,5 +198,5 @@ public class TodoTasksControllerTests
         result.Should().NotBeNull().And.BeOfType<BadRequestResult>();
     }
 
-    private TodoTasksController CreateSystemUnderTest() => new(this.mockTodoTaskService.Object);
+    private TodoTasksController CreateSystemUnderTest() => new(this.mockTodoTaskService.Object, this.mockLogger.Object);
 }
