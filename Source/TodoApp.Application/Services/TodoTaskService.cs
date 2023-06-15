@@ -1,6 +1,7 @@
 using AutoMapper;
 using Microsoft.EntityFrameworkCore;
 using TodoApp.Application.Dtos;
+using TodoApp.Application.Exceptions;
 using TodoApp.Application.Interfaces;
 using TodoApp.Domain.Entities;
 
@@ -35,7 +36,8 @@ public class TodoTaskService : ITodoTaskService
 
     public async Task DeleteTodoTask(int id)
     {
-        var existingEntity = await this.dbContext.TodoTasks.FindAsync(id) ?? throw new Exception($"Could not find todo task with ID {id}");
+        var existingEntity = await this.dbContext.TodoTasks.FindAsync(id) ??
+            throw new NotFoundException(nameof(TodoTask), id);
 
         this.dbContext.TodoTasks.Remove(existingEntity);
         await this.dbContext.SaveChangesAsync();
@@ -65,7 +67,8 @@ public class TodoTaskService : ITodoTaskService
 
     public async Task<TodoTaskDto> UpdateTodoTask(UpdateTodoTaskDto updateTask)
     {
-        var existingEntity = await this.dbContext.TodoTasks.FindAsync(updateTask.Id) ?? throw new Exception($"Could not find todo task with ID {updateTask.Id}");
+        var existingEntity = await this.dbContext.TodoTasks.FindAsync(updateTask.Id) ??
+            throw new NotFoundException(nameof(TodoTask), updateTask.Id);
         existingEntity.IsComplete = updateTask.IsComplete;
 
         await this.dbContext.SaveChangesAsync();

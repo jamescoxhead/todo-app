@@ -1,6 +1,7 @@
 using AutoMapper;
 using FluentAssertions.Execution;
 using TodoApp.Application.Dtos;
+using TodoApp.Application.Exceptions;
 using TodoApp.Application.Mapping;
 using TodoApp.Application.Services;
 using TodoApp.Domain.Entities;
@@ -76,7 +77,7 @@ public class TodoTaskServiceTests : SqlLiteTestBase
     }
 
     [Test]
-    public async Task DeleteTodoTask_ShouldThrowException_WhenTodoTaskNotFound()
+    public async Task DeleteTodoTask_ShouldThrowNotFoundException_WhenTodoTaskNotFound()
     {
         // Arrange
         var dbContext = this.CreateDbContext;
@@ -87,7 +88,7 @@ public class TodoTaskServiceTests : SqlLiteTestBase
         var deleteAction = async () => await sut.DeleteTodoTask(taskId);
 
         // Assert
-        await deleteAction.Should().ThrowAsync<Exception>();
+        await deleteAction.Should().ThrowExactlyAsync<NotFoundException>();
     }
 
     [Test]
@@ -215,7 +216,7 @@ public class TodoTaskServiceTests : SqlLiteTestBase
     }
 
     [Test]
-    public async Task UpdateTodoTask_ShouldThrowException_WhenTodoTaskNotFound()
+    public async Task UpdateTodoTask_ShouldThrowNotFoundException_WhenTodoTaskNotFound()
     {
         // Arrange
         var dbContext = this.CreateDbContext;
@@ -231,7 +232,7 @@ public class TodoTaskServiceTests : SqlLiteTestBase
         var action = async () => await sut.UpdateTodoTask(updateTaskDto);
 
         // Assert
-        await action.Should().ThrowAsync<Exception>();
+        await action.Should().ThrowExactlyAsync<NotFoundException>();
     }
 
     private TodoTaskService CreateSystemUnderTest(TodoDbContext dbContext) => new(dbContext, this.mapper);

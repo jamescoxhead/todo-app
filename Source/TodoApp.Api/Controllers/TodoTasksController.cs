@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using TodoApp.Application.Dtos;
+using TodoApp.Application.Exceptions;
 using TodoApp.Application.Interfaces;
 
 namespace TodoApp.Api.Controllers;
@@ -48,6 +49,7 @@ public class TodoTasksController : ControllerBase
     [HttpPut("{id}")]
     [ProducesResponseType(typeof(TodoTaskDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> UpdateTodoTask(int id, UpdateTodoTaskDto updateModel)
     {
         if (id != updateModel.Id)
@@ -62,10 +64,14 @@ public class TodoTasksController : ControllerBase
 
             return this.Ok(responseModel);
         }
-        catch (Exception)
+        catch (NotFoundException)
         {
             // TODO: Log exception
             // TODO: Return error body
+            return this.NotFound();
+        }
+        catch (Exception)
+        {
             return this.BadRequest();
         }
     }
@@ -73,16 +79,21 @@ public class TodoTasksController : ControllerBase
     [HttpDelete("{id}")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> DeleteTodoTask(int id)
     {
         try
         {
             await this.todoTaskService.DeleteTodoTask(id);
         }
-        catch (Exception)
+        catch (NotFoundException)
         {
             // TODO: Log exception
             // TODO: Return error body
+            return this.NotFound();
+        }
+        catch (Exception)
+        {
             return this.BadRequest();
         }
 
