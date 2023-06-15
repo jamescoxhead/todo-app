@@ -1,3 +1,4 @@
+using AutoMapper;
 using Microsoft.EntityFrameworkCore;
 using TodoApp.Application.Dtos;
 using TodoApp.Application.Interfaces;
@@ -11,22 +12,23 @@ namespace TodoApp.Application.Services;
 public class TodoTaskService : ITodoTaskService
 {
     private readonly ITodoDbContext dbContext;
+    private readonly IMapper mapper;
 
-    public TodoTaskService(ITodoDbContext dataContext) => this.dbContext = dataContext;
+    public TodoTaskService(ITodoDbContext dataContext, IMapper mapper)
+    {
+        this.dbContext = dataContext;
+        this.mapper = mapper;
+    }
 
     public async Task<TodoTaskDto> CreateTodoTask(CreateTodoTaskDto createTask)
     {
-        var todoTask = new TodoTask
-        {
-            Description = createTask.Description,
-            DueDate = createTask.DueDate,
-            IsComplete = false
-        };
-
+        var todoTask = this.mapper.Map<TodoTask>(createTask);
+        todoTask.IsComplete = false;
+        
         this.dbContext.TodoTasks.Add(todoTask);
         await this.dbContext.SaveChangesAsync();
 
-        var returnValue = MapTodoTask(todoTask);
+        var returnValue = this.MapTodoTask(todoTask);
 
         return returnValue;
     }
@@ -45,7 +47,7 @@ public class TodoTaskService : ITodoTaskService
 
         if (todoTask != null)
         {
-            var returnValue = MapTodoTask(todoTask);
+            var returnValue = this.MapTodoTask(todoTask);
 
             return returnValue;
         }
@@ -56,7 +58,7 @@ public class TodoTaskService : ITodoTaskService
     public async Task<IEnumerable<TodoTaskDto>> GetTodoTasks()
     {
         var todoTasks = await this.dbContext.TodoTasks.ToListAsync();
-        var returnValue = todoTasks.Select(task => MapTodoTask(task));
+        var returnValue = todoTasks.Select(task => this.MapTodoTask(task));
 
         return returnValue;
     }
@@ -68,7 +70,7 @@ public class TodoTaskService : ITodoTaskService
 
         await this.dbContext.SaveChangesAsync();
 
-        var returnValue = MapTodoTask(existingEntity);
+        var returnValue = this.MapTodoTask(existingEntity);
 
         return returnValue;
     }
@@ -78,16 +80,9 @@ public class TodoTaskService : ITodoTaskService
     /// </summary>
     /// <param name="input">The source object.</param>
     /// <returns>A mapped <see cref="TodoTaskDto"/> object.</returns>
-    private static TodoTaskDto MapTodoTask(TodoTask input)
+    private TodoTaskDto MapTodoTask(TodoTask input)
     {
-        var returnValue = new TodoTaskDto
-        {
-            Description = input.Description,
-            DueDate = input.DueDate,
-            Id = input.Id,
-            IsComplete = input.IsComplete
-        };
-
+        var returnValue = this.mapper.Map<TodoTaskDto>(input);
         return returnValue;
     }
 }

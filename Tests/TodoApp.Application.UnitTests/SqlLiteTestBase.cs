@@ -1,4 +1,4 @@
-﻿using System.Data.Common;
+using System.Data.Common;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using TodoApp.Infrastructure.Persistence;
@@ -27,7 +27,7 @@ public abstract class SqlLiteTestBase : IDisposable
     protected TodoDbContext CreateDbContext => new(this.dbContextOptions);
 
     [OneTimeTearDown]
-    public void TestFixtureTearDown() => this.Dispose();
+    public virtual void TestFixtureTearDown() => this.Dispose();
 
     #region IDisposable
     protected virtual void Dispose(bool disposing)

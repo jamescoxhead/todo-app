@@ -1,5 +1,7 @@
+using AutoMapper;
 using FluentAssertions.Execution;
 using TodoApp.Application.Dtos;
+using TodoApp.Application.Mapping;
 using TodoApp.Application.Services;
 using TodoApp.Domain.Entities;
 using TodoApp.Infrastructure.Persistence;
@@ -8,12 +10,22 @@ namespace TodoApp.Application.IntegrationTests.Services;
 
 public class TodoTaskServiceTests : SqlLiteTestBase
 {
+    private IMapper mapper;
+
+    [OneTimeSetUp]
+    public void TestFixtureSetUp()
+    {
+        var mapperConfig = new MapperConfiguration(cfg => cfg.AddProfile<TodoTaskMappingProfile>());
+
+        this.mapper = mapperConfig.CreateMapper();
+    }
+
     [Test]
     public async Task CreateTodoTask_ShouldCreateNewTodoTask()
     {
         // Arrange
         var dbContext = this.CreateDbContext;
-        var sut = CreateSystemUnderTest(dbContext);
+        var sut = this.CreateSystemUnderTest(dbContext);
 
         var newTask = new CreateTodoTaskDto
         {
@@ -45,7 +57,7 @@ public class TodoTaskServiceTests : SqlLiteTestBase
     {
         // Arrange
         var dbContext = this.CreateDbContext;
-        var sut = CreateSystemUnderTest(dbContext);
+        var sut = this.CreateSystemUnderTest(dbContext);
 
         var taskToDelete = new TodoTask
         {
@@ -68,7 +80,7 @@ public class TodoTaskServiceTests : SqlLiteTestBase
     {
         // Arrange
         var dbContext = this.CreateDbContext;
-        var sut = CreateSystemUnderTest(dbContext);
+        var sut = this.CreateSystemUnderTest(dbContext);
         var taskId = 123;
 
         // Act
@@ -83,7 +95,7 @@ public class TodoTaskServiceTests : SqlLiteTestBase
     {
         // Arrange
         var dbContext = this.CreateDbContext;
-        var sut = CreateSystemUnderTest(dbContext);
+        var sut = this.CreateSystemUnderTest(dbContext);
 
         var taskToGet = new TodoTask
         {
@@ -118,7 +130,7 @@ public class TodoTaskServiceTests : SqlLiteTestBase
     {
         // Arrange
         var dbContext = this.CreateDbContext;
-        var sut = CreateSystemUnderTest(dbContext);
+        var sut = this.CreateSystemUnderTest(dbContext);
         var taskId = 123;
 
         // Act
@@ -133,7 +145,7 @@ public class TodoTaskServiceTests : SqlLiteTestBase
     {
         // Arrange
         var dbContext = this.CreateDbContext;
-        var sut = CreateSystemUnderTest(dbContext);
+        var sut = this.CreateSystemUnderTest(dbContext);
 
         var tasks = new List<TodoTask>
         {
@@ -166,7 +178,7 @@ public class TodoTaskServiceTests : SqlLiteTestBase
     {
         // Arrange
         var dbContext = this.CreateDbContext;
-        var sut = CreateSystemUnderTest(dbContext);
+        var sut = this.CreateSystemUnderTest(dbContext);
 
         var taskToUpdate = new TodoTask
         {
@@ -207,7 +219,7 @@ public class TodoTaskServiceTests : SqlLiteTestBase
     {
         // Arrange
         var dbContext = this.CreateDbContext;
-        var sut = CreateSystemUnderTest(dbContext);
+        var sut = this.CreateSystemUnderTest(dbContext);
 
         var updateTaskDto = new UpdateTodoTaskDto
         {
@@ -222,5 +234,5 @@ public class TodoTaskServiceTests : SqlLiteTestBase
         await action.Should().ThrowAsync<Exception>();
     }
 
-    private static TodoTaskService CreateSystemUnderTest(TodoDbContext dbContext) => new(dbContext);
+    private TodoTaskService CreateSystemUnderTest(TodoDbContext dbContext) => new(dbContext, this.mapper);
 }
