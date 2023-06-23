@@ -25,9 +25,9 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{7B7494BE
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TodoApp.Api.UnitTests", "Tests\TodoApp.Api.UnitTests\TodoApp.Api.UnitTests.csproj", "{A8962387-38CD-4616-8845-9D9B800F2E7D}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TodoApp.Application.IntegrationTests", "Tests\TodoApp.Application.UnitTests\TodoApp.Application.IntegrationTests.csproj", "{1323582B-5100-41BC-BC9E-49B2BC7C19E2}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TodoApp.Infrastructure.UnitTests", "Tests\TodoApp.Infrastructure.UnitTests\TodoApp.Infrastructure.UnitTests.csproj", "{1805E049-D1A3-4021-B60A-ED1ABEBA7529}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TodoApp.Application.IntegrationTests", "Tests\TodoApp.Application.IntegrationTests\TodoApp.Application.IntegrationTests.csproj", "{680200D8-7DA7-4C2A-817B-F288A6F71EF3}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -55,10 +55,6 @@ Global
 		{A8962387-38CD-4616-8845-9D9B800F2E7D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A8962387-38CD-4616-8845-9D9B800F2E7D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A8962387-38CD-4616-8845-9D9B800F2E7D}.Release|Any CPU.Build.0 = Release|Any CPU
-		{1323582B-5100-41BC-BC9E-49B2BC7C19E2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{1323582B-5100-41BC-BC9E-49B2BC7C19E2}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{1323582B-5100-41BC-BC9E-49B2BC7C19E2}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{1323582B-5100-41BC-BC9E-49B2BC7C19E2}.Release|Any CPU.Build.0 = Release|Any CPU
 		{1805E049-D1A3-4021-B60A-ED1ABEBA7529}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{1805E049-D1A3-4021-B60A-ED1ABEBA7529}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1805E049-D1A3-4021-B60A-ED1ABEBA7529}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -73,7 +69,6 @@ Global
 		{E5377548-5117-4575-B33F-C94D709624DE} = {E978574A-5F18-490F-8A72-77059697BB06}
 		{3C6258F7-07F4-4E89-AE6E-45C06CB51E12} = {E978574A-5F18-490F-8A72-77059697BB06}
 		{A8962387-38CD-4616-8845-9D9B800F2E7D} = {7B7494BE-42E8-42AB-80A0-444DF6D42F42}
-		{1323582B-5100-41BC-BC9E-49B2BC7C19E2} = {7B7494BE-42E8-42AB-80A0-444DF6D42F42}
 		{1805E049-D1A3-4021-B60A-ED1ABEBA7529} = {7B7494BE-42E8-42AB-80A0-444DF6D42F42}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
