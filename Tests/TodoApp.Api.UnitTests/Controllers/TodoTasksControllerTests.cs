@@ -3,6 +3,7 @@ using Microsoft.Extensions.Logging;
 using TodoApp.Api.Controllers;
 using TodoApp.Application.Dtos;
 using TodoApp.Application.Interfaces;
+using TodoApp.Application.Validation;
 
 namespace TodoApp.Api.UnitTests.Controllers;
 
@@ -11,6 +12,7 @@ public class TodoTasksControllerTests
 {
     private readonly Mock<ITodoTaskService> mockTodoTaskService = new();
     private readonly Mock<ILogger<TodoTasksController>> mockLogger = new();
+    private readonly CreateTodoTaskDtoValidator createValidator = new();
 
     [SetUp]
     public void TestCaseSetUp() => this.mockTodoTaskService.Reset();
@@ -18,7 +20,7 @@ public class TodoTasksControllerTests
     [Test]
     public void Contructor_ShouldThrowNullReferenceException_WhenTodoTaskServiceIsNull()
     {
-        var action = () => new TodoTasksController(null!, this.mockLogger.Object);
+        var action = () => new TodoTasksController(null!, this.mockLogger.Object, this.createValidator);
 
         action.Should().ThrowExactly<ArgumentNullException>().WithParameterName("todoTaskService");
     }
@@ -26,9 +28,17 @@ public class TodoTasksControllerTests
     [Test]
     public void Constructor_Should_ThrowArgumentNullException_WhenLoggerIsNull()
     {
-        var action = () => new TodoTasksController(this.mockTodoTaskService.Object, null!);
+        var action = () => new TodoTasksController(this.mockTodoTaskService.Object, null!, this.createValidator);
 
         action.Should().ThrowExactly<ArgumentNullException>().WithParameterName("logger");
+    }
+
+    [Test]
+    public void Constructor_Should_ThrowArgumentNullException_WhenCreateValidatorIsNull()
+    {
+        var action = () => new TodoTasksController(this.mockTodoTaskService.Object, this.mockLogger.Object, null!);
+
+        action.Should().ThrowExactly<ArgumentNullException>().WithParameterName("createTodoTaskValidator");
     }
 
     [Test]
@@ -118,6 +128,21 @@ public class TodoTasksControllerTests
     }
 
     [Test]
+    public async Task CreateTodoTask_ShouldReturnBadRequest_WhenInvalidInput()
+    {
+        // Arrange
+        var inputModel = new CreateTodoTaskDto { Description = string.Empty, DueDate = DateTime.Now.AddDays(7) };
+        var sut = this.CreateSystemUnderTest();
+
+        // Act
+        var result = await sut.CreateTodoTask(inputModel);
+
+        // Assert
+        result.Should().NotBeNull().And.BeOfType<BadRequestObjectResult>()
+              .Which.Value.Should().BeOfType<ValidationProblemDetails>();
+    }
+
+    [Test]
     public async Task UpdateTodoTask_ShouldReturnOkResult_WhenUpdated()
     {
         // Arrange
@@ -198,5 +223,5 @@ public class TodoTasksControllerTests
         result.Should().NotBeNull().And.BeOfType<BadRequestResult>();
     }
 
-    private TodoTasksController CreateSystemUnderTest() => new(this.mockTodoTaskService.Object, this.mockLogger.Object);
+    private TodoTasksController CreateSystemUnderTest() => new(this.mockTodoTaskService.Object, this.mockLogger.Object, this.createValidator);
 }

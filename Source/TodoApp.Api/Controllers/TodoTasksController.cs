@@ -1,3 +1,4 @@
+using FluentValidation;
 using Microsoft.AspNetCore.Mvc;
 using TodoApp.Application.Dtos;
 using TodoApp.Application.Exceptions;
@@ -11,11 +12,13 @@ public class TodoTasksController : ControllerBase
 {
     private readonly ITodoTaskService todoTaskService;
     private readonly ILogger<TodoTasksController> logger;
+    private readonly IValidator<CreateTodoTaskDto> createTodoTaskValidator;
 
-    public TodoTasksController(ITodoTaskService todoTaskService, ILogger<TodoTasksController> logger)
+    public TodoTasksController(ITodoTaskService todoTaskService, ILogger<TodoTasksController> logger, IValidator<CreateTodoTaskDto> createTodoTaskValidator)
     {
         this.todoTaskService = todoTaskService ?? throw new ArgumentNullException(nameof(todoTaskService));
         this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
+        this.createTodoTaskValidator = createTodoTaskValidator ?? throw new ArgumentNullException(nameof(createTodoTaskValidator));
     }
 
     [HttpGet]
@@ -44,8 +47,17 @@ public class TodoTasksController : ControllerBase
 
     [HttpPost]
     [ProducesResponseType(typeof(TodoTaskDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> CreateTodoTask(CreateTodoTaskDto createModel)
     {
+        var validationResult = await this.createTodoTaskValidator.ValidateAsync(createModel);
+
+        if (!validationResult.IsValid)
+        {
+            var problemDetails = new ValidationProblemDetails(validationResult.ToDictionary());
+            return this.BadRequest(problemDetails);
+        }
+
         var responseModel = await this.todoTaskService.CreateTodoTask(createModel);
 
         return this.Ok(responseModel);

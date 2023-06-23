@@ -1,6 +1,7 @@
+using System.Reflection;
+using FluentValidation;
 using Microsoft.Extensions.DependencyInjection;
 using TodoApp.Application.Interfaces;
-using TodoApp.Application.Mapping;
 using TodoApp.Application.Services;
 
 namespace TodoApp.Application;
@@ -16,7 +17,8 @@ public static class ServiceExtensions
     {
         services.AddTransient<ITodoTaskService, TodoTaskService>();
 
-        services.AddAutoMapper(typeof(TodoTaskMappingProfile).Assembly);
+        services.AddAutoMapper(Assembly.GetExecutingAssembly());
+        services.AddValidatorsFromAssembly(Assembly.GetExecutingAssembly());
 
         return services;
     }
