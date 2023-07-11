@@ -1,0 +1,18 @@
+{
+  "$schema": "http://json.schemastore.org/template",
+  "author": "James Coxhead",
+  "classifications": [
+    "Web",
+    "WebAPI"
+  ],
+  "groupIdentity": "JamesCoxhead.SolutionBoilerplate",
+  "identity": "JamesCoxhead.SolutionBoilerplate.CSharp",
+  "name": "Solution Boilerplate",
+  "shortName": "jc-boilerplate",
+  "preferNameDirectory": true,
+  "sourceName": "TodoApp",
+  "tags": {
+    "language": "c#",
+    "type": "solution"
+  }
+}

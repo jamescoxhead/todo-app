@@ -29,7 +29,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TodoApp.Infrastructure.Unit
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TodoApp.Application.IntegrationTests", "Tests\TodoApp.Application.IntegrationTests\TodoApp.Application.IntegrationTests.csproj", "{680200D8-7DA7-4C2A-817B-F288A6F71EF3}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TodoApp.Application.UnitTests", "Tests\TodoApp.Application.UnitTests\TodoApp.Application.UnitTests.csproj", "{1873A3D0-20BC-47E7-B714-E8CA409CB9DA}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TodoApp.Application.UnitTests", "Tests\TodoApp.Application.UnitTests\TodoApp.Application.UnitTests.csproj", "{1873A3D0-20BC-47E7-B714-E8CA409CB9DA}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Templates", "Templates", "{96761B73-FF99-4E4E-B0C2-54150986B457}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TodoApp", "TodoApp.csproj", "{CB29B219-69CD-4D19-87ED-7CB2F040C337}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -69,6 +73,10 @@ Global
 		{1873A3D0-20BC-47E7-B714-E8CA409CB9DA}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1873A3D0-20BC-47E7-B714-E8CA409CB9DA}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{1873A3D0-20BC-47E7-B714-E8CA409CB9DA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CB29B219-69CD-4D19-87ED-7CB2F040C337}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CB29B219-69CD-4D19-87ED-7CB2F040C337}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CB29B219-69CD-4D19-87ED-7CB2F040C337}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CB29B219-69CD-4D19-87ED-7CB2F040C337}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -82,6 +90,8 @@ Global
 		{1805E049-D1A3-4021-B60A-ED1ABEBA7529} = {7B7494BE-42E8-42AB-80A0-444DF6D42F42}
 		{680200D8-7DA7-4C2A-817B-F288A6F71EF3} = {7B7494BE-42E8-42AB-80A0-444DF6D42F42}
 		{1873A3D0-20BC-47E7-B714-E8CA409CB9DA} = {7B7494BE-42E8-42AB-80A0-444DF6D42F42}
+		{96761B73-FF99-4E4E-B0C2-54150986B457} = {9DDB675F-1D01-4B6F-A9B8-D7212BE9F4A2}
+		{CB29B219-69CD-4D19-87ED-7CB2F040C337} = {96761B73-FF99-4E4E-B0C2-54150986B457}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {8F98F2C1-BC6B-453B-9E4A-90FDBDB11441}
