@@ -1,0 +1,8 @@
+<!-- See https://learn.microsoft.com/en-us/visualstudio/msbuild/customize-by-directory for more details about common build properties -->
+<Project>
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+</Project>

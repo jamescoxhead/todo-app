@@ -22,5 +22,7 @@ public class NotFoundException : Exception
     /// <param name="key">The ID that could not be found.</param>
     public NotFoundException(string entityName, object key) : base($"Entity {entityName} with key {key} was not found")
     {
+        this.EntityName = entityName;
+        this.Key = key;
     }
 }
