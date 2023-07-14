@@ -1,13 +1,13 @@
 using FluentValidation;
-using TodoApp.Application.Dtos;
+using TodoApp.Application.TodoTasks.Commands;
 
-namespace TodoApp.Application.Validation;
+namespace TodoApp.Application.TodoTasks.Validators;
 
-public class CreateTodoTaskDtoValidator : AbstractValidator<CreateTodoTaskDto>
+public class CreateTodoTaskCommandValidator : AbstractValidator<CreateTodoTaskCommand>
 {
     private const string DateInPastErrorMessage = "'{PropertyName}' cannot be in the past";
 
-    public CreateTodoTaskDtoValidator()
+    public CreateTodoTaskCommandValidator()
     {
         this.RuleFor(c => c.Description).NotEmpty().MaximumLength(750);
         this.RuleFor(c => c.DueDate).GreaterThan(DateTime.UtcNow.Date).WithMessage(DateInPastErrorMessage);

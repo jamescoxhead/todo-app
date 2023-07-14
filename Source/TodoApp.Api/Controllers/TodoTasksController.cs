@@ -1,8 +1,10 @@
 using FluentValidation;
+using MediatR;
 using Microsoft.AspNetCore.Mvc;
-using TodoApp.Application.Dtos;
 using TodoApp.Application.Exceptions;
-using TodoApp.Application.Interfaces;
+using TodoApp.Application.TodoTasks.Commands;
+using TodoApp.Application.TodoTasks.Dtos;
+using TodoApp.Application.TodoTasks.Queries;
 
 namespace TodoApp.Api.Controllers;
 
@@ -10,22 +12,22 @@ namespace TodoApp.Api.Controllers;
 [Route("api/[controller]")]
 public class TodoTasksController : ControllerBase
 {
-    private readonly ITodoTaskService todoTaskService;
     private readonly ILogger<TodoTasksController> logger;
-    private readonly IValidator<CreateTodoTaskDto> createTodoTaskValidator;
+    private readonly IValidator<CreateTodoTaskCommand> createTodoTaskValidator;
+    private readonly IMediator mediator;
 
-    public TodoTasksController(ITodoTaskService todoTaskService, ILogger<TodoTasksController> logger, IValidator<CreateTodoTaskDto> createTodoTaskValidator)
+    public TodoTasksController(ILogger<TodoTasksController> logger, IValidator<CreateTodoTaskCommand> createTodoTaskValidator, IMediator mediator)
     {
-        this.todoTaskService = todoTaskService ?? throw new ArgumentNullException(nameof(todoTaskService));
         this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
         this.createTodoTaskValidator = createTodoTaskValidator ?? throw new ArgumentNullException(nameof(createTodoTaskValidator));
+        this.mediator = mediator ?? throw new ArgumentNullException(nameof(mediator));
     }
 
     [HttpGet]
     [ProducesResponseType(typeof(TodoTaskDto[]), StatusCodes.Status200OK)]
     public async Task<IActionResult> GetTodoTasks()
     {
-        var model = await this.todoTaskService.GetTodoTasks();
+        var model = await this.mediator.Send(new GetTodoTasksQuery());
 
         return this.Ok(model);
     }
@@ -35,7 +37,7 @@ public class TodoTasksController : ControllerBase
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetTodoTask(int id)
     {
-        var model = await this.todoTaskService.GetTodoTaskById(id);
+        var model = await this.mediator.Send(new GetTodoTaskQuery { TodoTaskId = id });
 
         if (model == null)
         {
@@ -48,7 +50,7 @@ public class TodoTasksController : ControllerBase
     [HttpPost]
     [ProducesResponseType(typeof(TodoTaskDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    public async Task<IActionResult> CreateTodoTask(CreateTodoTaskDto createModel)
+    public async Task<IActionResult> CreateTodoTask(CreateTodoTaskCommand createModel)
     {
         var validationResult = await this.createTodoTaskValidator.ValidateAsync(createModel);
 
@@ -58,7 +60,7 @@ public class TodoTasksController : ControllerBase
             return this.BadRequest(problemDetails);
         }
 
-        var responseModel = await this.todoTaskService.CreateTodoTask(createModel);
+        var responseModel = await this.mediator.Send(createModel);
 
         return this.Ok(responseModel);
     }
@@ -67,9 +69,9 @@ public class TodoTasksController : ControllerBase
     [ProducesResponseType(typeof(TodoTaskDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> UpdateTodoTask(int id, UpdateTodoTaskDto updateModel)
+    public async Task<IActionResult> UpdateTodoTask(int id, UpdateTodoTaskCommand updateModel)
     {
-        if (id != updateModel.Id)
+        if (id != updateModel.TodoTaskId)
         {
             this.ModelState.AddModelError(nameof(id), "id does not match ID provided in body");
             return this.BadRequest(this.ModelState);
@@ -77,7 +79,7 @@ public class TodoTasksController : ControllerBase
 
         try
         {
-            var responseModel = await this.todoTaskService.UpdateTodoTask(updateModel);
+            var responseModel = await this.mediator.Send(updateModel);
 
             return this.Ok(responseModel);
         }
@@ -101,7 +103,7 @@ public class TodoTasksController : ControllerBase
     {
         try
         {
-            await this.todoTaskService.DeleteTodoTask(id);
+            await this.mediator.Send(new DeleteTodoTaskCommand { TodoTaskId = id });
         }
         catch (NotFoundException ex)
         {

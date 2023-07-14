@@ -1,4 +1,4 @@
-namespace TodoApp.Application.Dtos;
+namespace TodoApp.Application.TodoTasks.Dtos;
 
 public class TodoTaskDto
 {

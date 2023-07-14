@@ -1,13 +1,13 @@
 using FluentValidation.TestHelper;
-using TodoApp.Application.Dtos;
-using TodoApp.Application.Validation;
+using TodoApp.Application.TodoTasks.Commands;
+using TodoApp.Application.TodoTasks.Validators;
 
-namespace TodoApp.Application.UnitTests.Validation;
+namespace TodoApp.Application.UnitTests.Validators;
 
 [TestFixture]
-public class CreateTodoTaskDtoValidatorTests
+public class CreateTodoTaskCommandValidatorTests
 {
-    private CreateTodoTaskDtoValidator sut = new();
+    private CreateTodoTaskCommandValidator sut = new();
 
     [SetUp]
     public void TestCaseSetUp() => this.sut = new();
@@ -16,7 +16,7 @@ public class CreateTodoTaskDtoValidatorTests
     public void Validate_ShouldValidateValidObject()
     {
         // Arrange
-        var dto = new CreateTodoTaskDto
+        var dto = new CreateTodoTaskCommand
         {
             Description = "description",
             DueDate = DateTime.Now.AddDays(1),
@@ -35,7 +35,7 @@ public class CreateTodoTaskDtoValidatorTests
     public void Validate_ShouldHaveErrorsForEmptyDescription(string description)
     {
         // Arrange
-        var dto = new CreateTodoTaskDto
+        var dto = new CreateTodoTaskCommand
         {
             Description = description,
             DueDate = DateTime.Now.AddDays(1),
@@ -54,7 +54,7 @@ public class CreateTodoTaskDtoValidatorTests
     public void Validate_ShouldHaveErrorForLongDescription(int length)
     {
         // Arrange
-        var dto = new CreateTodoTaskDto
+        var dto = new CreateTodoTaskCommand
         {
             Description = new string('*', length),
             DueDate = DateTime.Now.AddDays(1),
@@ -71,7 +71,7 @@ public class CreateTodoTaskDtoValidatorTests
     public void Validate_ShouldHaveErrorWhenDateInPast()
     {
         // Arrange
-        var dto = new CreateTodoTaskDto
+        var dto = new CreateTodoTaskCommand
         {
             Description = "description",
             DueDate = DateTime.Now.AddDays(-5),

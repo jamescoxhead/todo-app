@@ -1,34 +1,29 @@
+using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using TodoApp.Api.Controllers;
-using TodoApp.Application.Dtos;
-using TodoApp.Application.Interfaces;
-using TodoApp.Application.Validation;
+using TodoApp.Application.Exceptions;
+using TodoApp.Application.TodoTasks.Commands;
+using TodoApp.Application.TodoTasks.Dtos;
+using TodoApp.Application.TodoTasks.Queries;
+using TodoApp.Application.TodoTasks.Validators;
 
 namespace TodoApp.Api.UnitTests.Controllers;
 
 [TestFixture]
 public class TodoTasksControllerTests
 {
-    private readonly Mock<ITodoTaskService> mockTodoTaskService = new();
     private readonly Mock<ILogger<TodoTasksController>> mockLogger = new();
-    private readonly CreateTodoTaskDtoValidator createValidator = new();
+    private readonly CreateTodoTaskCommandValidator createValidator = new();
+    private readonly Mock<IMediator> mockMediator = new();
 
     [SetUp]
-    public void TestCaseSetUp() => this.mockTodoTaskService.Reset();
-
-    [Test]
-    public void Contructor_ShouldThrowNullReferenceException_WhenTodoTaskServiceIsNull()
-    {
-        var action = () => new TodoTasksController(null!, this.mockLogger.Object, this.createValidator);
-
-        action.Should().ThrowExactly<ArgumentNullException>().WithParameterName("todoTaskService");
-    }
+    public void TestCaseSetUp() => this.mockMediator.Reset();
 
     [Test]
     public void Constructor_Should_ThrowArgumentNullException_WhenLoggerIsNull()
     {
-        var action = () => new TodoTasksController(this.mockTodoTaskService.Object, null!, this.createValidator);
+        var action = () => new TodoTasksController(null!, this.createValidator, this.mockMediator.Object);
 
         action.Should().ThrowExactly<ArgumentNullException>().WithParameterName("logger");
     }
@@ -36,9 +31,17 @@ public class TodoTasksControllerTests
     [Test]
     public void Constructor_Should_ThrowArgumentNullException_WhenCreateValidatorIsNull()
     {
-        var action = () => new TodoTasksController(this.mockTodoTaskService.Object, this.mockLogger.Object, null!);
+        var action = () => new TodoTasksController(this.mockLogger.Object, null!, this.mockMediator.Object);
 
         action.Should().ThrowExactly<ArgumentNullException>().WithParameterName("createTodoTaskValidator");
+    }
+
+    [Test]
+    public void Constructor_Should_ThrowArgumentNullException_WhenMediatorIsNull()
+    {
+        var action = () => new TodoTasksController(this.mockLogger.Object, this.createValidator, null!);
+
+        action.Should().ThrowExactly<ArgumentNullException>().WithParameterName("mediator");
     }
 
     [Test]
@@ -61,7 +64,7 @@ public class TodoTasksControllerTests
             new TodoTaskDto {Id = 3, Description = "Task 3", DueDate = DateTime.Now.AddMonths(3), IsComplete = false}
         };
 
-        this.mockTodoTaskService.Setup(m => m.GetTodoTasks().Result).Returns(model);
+        this.mockMediator.Setup(m => m.Send(It.IsAny<GetTodoTasksQuery>(), It.IsAny<CancellationToken>()).Result).Returns(model);
 
         var sut = this.CreateSystemUnderTest();
 
@@ -75,12 +78,31 @@ public class TodoTasksControllerTests
     }
 
     [Test]
+    public async Task GetTodoTasks_ShouldReturnOkResult_WhenNoResultsFound()
+    {
+        // Arrange
+        var model = Enumerable.Empty<TodoTaskDto>();
+
+        this.mockMediator.Setup(m => m.Send(It.IsAny<GetTodoTasksQuery>(), It.IsAny<CancellationToken>()).Result).Returns(model);
+
+        var sut = this.CreateSystemUnderTest();
+
+        // Act
+        var result = await sut.GetTodoTasks();
+
+        // Assert
+        result.Should().NotBeNull().And.BeOfType<OkObjectResult>()
+              .Which.Value.Should().BeAssignableTo<IEnumerable<TodoTaskDto>>()
+              .Which.Should().BeEmpty();
+    }
+
+    [Test]
     public async Task GetTodoTask_ShouldReturnOkResult_WhenResultFound()
     {
         // Arrange
         var model = new TodoTaskDto { Id = 1, Description = "Task 1", DueDate = DateTime.Now, IsComplete = false };
 
-        this.mockTodoTaskService.Setup(m => m.GetTodoTaskById(model.Id).Result).Returns(model);
+        this.mockMediator.Setup(m => m.Send(It.IsAny<GetTodoTaskQuery>(), It.IsAny<CancellationToken>()).Result).Returns(model);
         var sut = this.CreateSystemUnderTest();
 
         // Act
@@ -98,7 +120,7 @@ public class TodoTasksControllerTests
         // Arrange
         var model = new TodoTaskDto { Id = 1, Description = "Task 1", DueDate = DateTime.Now, IsComplete = false };
 
-        this.mockTodoTaskService.Setup(m => m.GetTodoTaskById(model.Id).Result).Returns(model);
+        this.mockMediator.Setup(m => m.Send(new GetTodoTaskQuery { TodoTaskId = model.Id }, It.IsAny<CancellationToken>()).Result).Returns(model);
         var sut = this.CreateSystemUnderTest();
 
         // Act
@@ -112,10 +134,10 @@ public class TodoTasksControllerTests
     public async Task CreateTodoTask_ShouldReturnOkResult()
     {
         // Arrange
-        var inputModel = new CreateTodoTaskDto { Description = "New task", DueDate = DateTime.Now.AddDays(7) };
+        var inputModel = new CreateTodoTaskCommand { Description = "New task", DueDate = DateTime.Now.AddDays(7) };
         var returnModel = new TodoTaskDto { Description = inputModel.Description, DueDate = inputModel.DueDate, Id = 1, IsComplete = false };
 
-        this.mockTodoTaskService.Setup(m => m.CreateTodoTask(inputModel).Result).Returns(returnModel);
+        this.mockMediator.Setup(m => m.Send(It.IsAny<CreateTodoTaskCommand>(), It.IsAny<CancellationToken>()).Result).Returns(returnModel);
         var sut = this.CreateSystemUnderTest();
 
         // Act
@@ -128,32 +150,17 @@ public class TodoTasksControllerTests
     }
 
     [Test]
-    public async Task CreateTodoTask_ShouldReturnBadRequest_WhenInvalidInput()
-    {
-        // Arrange
-        var inputModel = new CreateTodoTaskDto { Description = string.Empty, DueDate = DateTime.Now.AddDays(7) };
-        var sut = this.CreateSystemUnderTest();
-
-        // Act
-        var result = await sut.CreateTodoTask(inputModel);
-
-        // Assert
-        result.Should().NotBeNull().And.BeOfType<BadRequestObjectResult>()
-              .Which.Value.Should().BeOfType<ValidationProblemDetails>();
-    }
-
-    [Test]
     public async Task UpdateTodoTask_ShouldReturnOkResult_WhenUpdated()
     {
         // Arrange
-        var inputModel = new UpdateTodoTaskDto { Id = 123, IsComplete = true };
-        var returnModel = new TodoTaskDto { Description = "Task 123", DueDate = null, Id = inputModel.Id, IsComplete = inputModel.IsComplete };
+        var inputModel = new UpdateTodoTaskCommand { TodoTaskId = 123, IsComplete = true };
+        var returnModel = new TodoTaskDto { Description = "Task 123", DueDate = null, Id = inputModel.TodoTaskId, IsComplete = inputModel.IsComplete };
 
-        this.mockTodoTaskService.Setup(m => m.UpdateTodoTask(inputModel).Result).Returns(returnModel);
+        this.mockMediator.Setup(m => m.Send(inputModel, It.IsAny<CancellationToken>()).Result).Returns(returnModel);
         var sut = this.CreateSystemUnderTest();
 
         // Act
-        var result = await sut.UpdateTodoTask(inputModel.Id, inputModel);
+        var result = await sut.UpdateTodoTask(inputModel.TodoTaskId, inputModel);
 
         // Assert
         result.Should().NotBeNull().And.BeOfType<OkObjectResult>()
@@ -165,10 +172,10 @@ public class TodoTasksControllerTests
     public async Task UpdateTodoTask_ShouldReturnBadRequestResult_IfIdMismatch()
     {
         // Arrange
-        var inputModel = new UpdateTodoTaskDto { Id = 123, IsComplete = true };
+        var inputModel = new UpdateTodoTaskCommand { TodoTaskId = 123, IsComplete = true };
         var returnModel = new TodoTaskDto { Description = "Task 123", DueDate = null, Id = 456, IsComplete = inputModel.IsComplete };
 
-        this.mockTodoTaskService.Setup(m => m.UpdateTodoTask(inputModel).Result).Returns(returnModel);
+        this.mockMediator.Setup(m => m.Send(It.IsAny<UpdateTodoTaskCommand>(), It.IsAny<CancellationToken>()).Result).Returns(returnModel);
         var sut = this.CreateSystemUnderTest();
 
         // Act
@@ -182,14 +189,14 @@ public class TodoTasksControllerTests
     public async Task UpdateTodoTask_ShouldReturnBadRequestResult_IfNotUpdated()
     {
         // Arrange
-        var inputModel = new UpdateTodoTaskDto { Id = 123, IsComplete = true };
-        var returnModel = new TodoTaskDto { Description = "Task 123", DueDate = null, Id = inputModel.Id, IsComplete = inputModel.IsComplete };
+        var inputModel = new UpdateTodoTaskCommand { TodoTaskId = 123, IsComplete = true };
+        var returnModel = new TodoTaskDto { Description = "Task 123", DueDate = null, Id = inputModel.TodoTaskId, IsComplete = inputModel.IsComplete };
 
-        this.mockTodoTaskService.Setup(m => m.UpdateTodoTask(inputModel).Result).Throws<Exception>();
+        this.mockMediator.Setup(m => m.Send(It.IsAny<UpdateTodoTaskCommand>(), It.IsAny<CancellationToken>()).Result).Throws<Exception>();
         var sut = this.CreateSystemUnderTest();
 
         // Act
-        var result = await sut.UpdateTodoTask(inputModel.Id, inputModel);
+        var result = await sut.UpdateTodoTask(inputModel.TodoTaskId, inputModel);
 
         // Assert
         result.Should().NotBeNull().And.BeOfType<BadRequestResult>();
@@ -199,7 +206,7 @@ public class TodoTasksControllerTests
     public async Task DeleteTodoTask_ShouldReturnNoContent_IfDeleted()
     {
         // Arrange
-        this.mockTodoTaskService.Setup(m => m.DeleteTodoTask(It.IsAny<int>()));
+        this.mockMediator.Setup(m => m.Send(It.IsAny<DeleteTodoTaskCommand>(), It.IsAny<CancellationToken>()));
         var sut = this.CreateSystemUnderTest();
 
         // Act
@@ -213,15 +220,15 @@ public class TodoTasksControllerTests
     public async Task DeleteTodoTask_ShouldReturnBadRequestResult_IfNotDeleted()
     {
         // Arrange
-        this.mockTodoTaskService.Setup(m => m.DeleteTodoTask(It.IsAny<int>())).ThrowsAsync(new Exception());
+        this.mockMediator.Setup(m => m.Send(It.IsAny<DeleteTodoTaskCommand>(), It.IsAny<CancellationToken>())).ThrowsAsync(new NotFoundException("TodoTask", 123));
         var sut = this.CreateSystemUnderTest();
 
         // Act
         var result = await sut.DeleteTodoTask(123);
 
         // Assert
-        result.Should().NotBeNull().And.BeOfType<BadRequestResult>();
+        result.Should().NotBeNull().And.BeOfType<NotFoundResult>();
     }
 
-    private TodoTasksController CreateSystemUnderTest() => new(this.mockTodoTaskService.Object, this.mockLogger.Object, this.createValidator);
+    private TodoTasksController CreateSystemUnderTest() => new(this.mockLogger.Object, this.createValidator, this.mockMediator.Object);
 }

@@ -1,7 +1,8 @@
 using AutoMapper;
 using FluentAssertions.Execution;
-using TodoApp.Application.Dtos;
 using TodoApp.Application.Mapping;
+using TodoApp.Application.TodoTasks.Commands;
+using TodoApp.Application.TodoTasks.Dtos;
 using TodoApp.Domain.Entities;
 
 namespace TodoApp.Application.UnitTests.Mapping;
@@ -26,7 +27,7 @@ public class TodoTaskMappingProfileTests
     public void CanMap_CreateTodoTaskDto_To_TodoTask()
     {
         // Arrange
-        var source = new CreateTodoTaskDto
+        var source = new CreateTodoTaskCommand
         {
             Description = "description",
             DueDate = DateTime.Now
