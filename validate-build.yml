@@ -9,7 +9,7 @@ pool:
   vmImage: 'ubuntu-latest'
 
 variables:
-  dotnetVersion: 6.x
+  dotnetVersion: 7.x
   solutionName: TodoApp.sln
   buildConfiguration: Release
 

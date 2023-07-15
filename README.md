@@ -23,9 +23,6 @@ Each project within the solution has associated automated tests.
 To keep things simple this repo loosely follows [Trunk-based development](https://trunkbaseddevelopment.com/). Small changes in the main branch are fine if they do not break the build. Larger changes and external contributions should be in a feature branch off of the main branch. External contributions are merged in via a pull request.
 
 ## Roadmap
-* Add CI using **Azure DevOps**
 * Add a front end - maybe Blazor?
 * Gradually expand the application to include more functionality. *TODO: create a backlog*
-* CQRS/Mediatr
 * Identity
-* .NET 7
