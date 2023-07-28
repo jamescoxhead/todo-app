@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using TodoApp.Application.Interfaces;
+using TodoApp.Infrastructure.Identity.Models;
 using TodoApp.Infrastructure.Persistence;
 using TodoApp.Infrastructure.Persistence.Seeding;
 
@@ -20,6 +21,10 @@ public static class ServiceExtensions
         services.AddScoped<ITodoDbContext>(provider => provider.GetRequiredService<TodoDbContext>());
 
         services.AddScoped<TodoDbInitialiser>();
+
+        services.AddIdentityCore<ApplicationUser>()
+                .AddRoles<ApplicationRole>()
+                .AddEntityFrameworkStores<TodoDbContext>();
 
         return services;
     }
