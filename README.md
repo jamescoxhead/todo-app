@@ -1,4 +1,6 @@
 # Todo App
+[![Build Status](https://dev.azure.com/jamescoxhead/Todo%20App/_apis/build/status%2FCI%20Build?branchName=main)](https://dev.azure.com/jamescoxhead/Todo%20App/_build/latest?definitionId=8&branchName=main)
+
 This application serves as a sandbox for various patterns, libraries, tools etc, and will probably become one of the more over-engineered to-do apps
 
 ## Technologies
