@@ -54,8 +54,10 @@ steps:
   inputs:
     serviceConnectionEndpoint: 'Snyk'
     testType: 'app'
+    severityThreshold: 'medium'
     monitorWhen: 'always'
     failOnIssues: true
+    projectName: 'jamescoxhead/todo-app'
     additionalArguments: '--all-projects'
 
 - task: DotNetCoreCLI@2
