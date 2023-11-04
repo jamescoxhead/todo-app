@@ -1,5 +1,5 @@
 using Microsoft.AspNetCore.Identity;
-using Microsoft.Extensions.Configuration;
+using TodoApp.Application.Configuration.Models;
 using TodoApp.Infrastructure.Persistence;
 
 namespace TodoApp.Api;
@@ -20,13 +20,17 @@ public static class ServiceExtensions
         services.AddHealthChecks()
                 .AddDbContextCheck<TodoDbContext>();
 
+        services.AddAuthentication();
+
         services.Configure<IdentityOptions>(options =>
         {
             options.User.RequireUniqueEmail = true;
-
+            
             var passwordOptions = configuration.GetSection("Identity:PasswordOptions").Get<PasswordOptions>();
             options.Password = passwordOptions ?? new PasswordOptions();
         });
+
+        services.Configure<JwtOptions>(configuration.GetSection(JwtOptions.Key));
 
         return services;
     }
