@@ -39,6 +39,14 @@ steps:
     projects: '**/*.@(Unit|Integration)Tests.csproj'
     arguments: '--configuration $(buildConfiguration) --no-restore --settings coverlet.runsettings'
     publishTestResults: true
+    
+- task: SnykSecurityScan@1
+  inputs:
+    serviceConnectionEndpoint: 'Snyk'
+    testType: 'app'
+    monitorWhen: 'always'
+    failOnIssues: true
+    projectName: 'todo-app'
 
 - task: PublishCodeCoverageResults@1
   displayName: 'Publish code coverage'
