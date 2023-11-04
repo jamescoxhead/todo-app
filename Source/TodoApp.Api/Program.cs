@@ -10,7 +10,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddDomainServices()
                 .AddApplicationServices()
                 .AddInfrastructureServices(builder.Configuration)
-                .AddApiServices();
+                .AddApiServices(builder.Configuration);
 
 var app = builder.Build();
 
@@ -35,6 +35,7 @@ else
 
 app.UseHealthChecks("/health");
 app.UseHttpsRedirection();
+app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
 

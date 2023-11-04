@@ -30,14 +30,14 @@ public class CreateTodoTaskCommandValidatorTests
     }
 
     [TestCase("")]
-    [TestCase(null!)]
+    [TestCase(null)]
     [TestCase("                  ")]
-    public void Validate_ShouldHaveErrorsForEmptyDescription(string description)
+    public void Validate_ShouldHaveErrorsForEmptyDescription(string? description)
     {
         // Arrange
         var dto = new CreateTodoTaskCommand
         {
-            Description = description,
+            Description = description!,
             DueDate = DateTime.Now.AddDays(1),
         };
 
