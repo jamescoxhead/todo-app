@@ -40,5 +40,6 @@
     </PackageVersion>
     <PackageVersion Include="Swashbuckle.AspNetCore" Version="6.5.0" />
     <PackageVersion Include="System.IdentityModel.Tokens.Jwt" Version="7.0.3" />
+    <PackageVersion Include="System.Text.Encodings.Web" Version="7.0.0" />
   </ItemGroup>
 </Project>
