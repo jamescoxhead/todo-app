@@ -41,12 +41,14 @@ steps:
     publishTestResults: true
     
 - task: SnykSecurityScan@1
+  displayName: Snyk Security Scan
   inputs:
     serviceConnectionEndpoint: 'Snyk'
     testType: 'app'
+    severityThreshold: 'low'
     monitorWhen: 'always'
     failOnIssues: true
-    projectName: 'todo-app'
+    additionalArguments: '--all-projects'
 
 - task: PublishCodeCoverageResults@1
   displayName: 'Publish code coverage'
