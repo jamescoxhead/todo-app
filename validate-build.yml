@@ -39,6 +39,16 @@ steps:
     projects: '**/*.@(Unit|Integration)Tests.csproj'
     arguments: '--configuration $(buildConfiguration) --no-restore --settings coverlet.runsettings'
     publishTestResults: true
+    
+- task: SnykSecurityScan@1
+  displayName: Snyk Security Scan
+  inputs:
+    serviceConnectionEndpoint: 'Snyk'
+    testType: 'app'
+    severityThreshold: 'low'
+    monitorWhen: 'always'
+    failOnIssues: true
+    additionalArguments: '--all-projects'
 
 - task: PublishCodeCoverageResults@1
   displayName: 'Publish code coverage'

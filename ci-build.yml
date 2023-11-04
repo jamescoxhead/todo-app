@@ -48,6 +48,16 @@ steps:
   inputs:
     codeCoverageTool: 'Cobertura'
     summaryFileLocation: '$(Agent.TempDirectory)/**/coverage.cobertura.xml'
+    
+- task: SnykSecurityScan@1
+  displayName: Snyk Security Scan
+  inputs:
+    serviceConnectionEndpoint: 'Snyk'
+    testType: 'app'
+    severityThreshold: 'high'
+    monitorWhen: 'always'
+    failOnIssues: true
+    additionalArguments: '--all-projects'
 
 - task: DotNetCoreCLI@2
   displayName: Publish API project
