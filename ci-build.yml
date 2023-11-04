@@ -56,7 +56,7 @@ steps:
     testType: 'app'
     monitorWhen: 'always'
     failOnIssues: true
-    projectName: 'todo-app'
+    additionalArguments: '--all-projects'
 
 - task: DotNetCoreCLI@2
   displayName: Publish API project
