@@ -25,7 +25,7 @@ public static class ServiceExtensions
         services.Configure<IdentityOptions>(options =>
         {
             options.User.RequireUniqueEmail = true;
-            
+
             var passwordOptions = configuration.GetSection("Identity:PasswordOptions").Get<PasswordOptions>();
             options.Password = passwordOptions ?? new PasswordOptions();
         });
