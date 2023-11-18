@@ -12,7 +12,7 @@ namespace TodoApp.Application.UnitTests.Features.Users;
 public class CreateUserCommandTests
 {
     private IMapper mapper;
-    private readonly Mock<UserManager<ApplicationUser>> mockUserManager = TestHelpers.CreateMockUserManager<ApplicationUser>();
+    private UserManager<ApplicationUser> mockUserManager = TestHelpers.CreateMockUserManager<ApplicationUser>();
 
     [OneTimeSetUp]
     public void TestFixtureSetUp()
@@ -22,7 +22,13 @@ public class CreateUserCommandTests
     }
 
     [SetUp]
-    public void TestCastSetUp() => this.mockUserManager.Reset();
+    public void TestCastSetUp() => this.mockUserManager = TestHelpers.CreateMockUserManager<ApplicationUser>();
+
+    [TearDown]
+    public void TestCaseTearDown() => this.mockUserManager.Dispose();
+
+    [OneTimeTearDown]
+    public void TestFixtureTearDown() => this.mockUserManager.Dispose();
 
     [Test]
     public void Contructor_ShouldThrowNullReferenceException_WhenUserManagerIsNull()
@@ -35,7 +41,7 @@ public class CreateUserCommandTests
     [Test]
     public void Contructor_ShouldThrowNullReferenceException_WhenMapperIsNull()
     {
-        var action = () => new CreateUserCommandHandler(this.mockUserManager.Object, null!);
+        var action = () => new CreateUserCommandHandler(this.mockUserManager, null!);
 
         action.Should().ThrowExactly<ArgumentNullException>().WithParameterName("mapper");
     }
@@ -43,7 +49,7 @@ public class CreateUserCommandTests
     [Test]
     public void Constructor_ShouldInstantiate_WithValidParameters()
     {
-        var sut = this.CreateSystemUnderTest(this.mockUserManager.Object);
+        var sut = this.CreateSystemUnderTest(this.mockUserManager);
 
         sut.Should().NotBeNull();
     }
@@ -52,10 +58,10 @@ public class CreateUserCommandTests
     public async Task CreateUser_ShouldCreateNewUser()
     {
         // Arrange
-        this.mockUserManager.Setup(m => m.CreateAsync(It.IsAny<ApplicationUser>(), It.IsAny<string>()).Result)
-                            .Returns(IdentityResult.Success);
+        this.mockUserManager.CreateAsync(Arg.Any<ApplicationUser>(), Arg.Any<string>())
+                            .ReturnsForAnyArgs(IdentityResult.Success);
 
-        var sut = this.CreateSystemUnderTest(this.mockUserManager.Object);
+        var sut = this.CreateSystemUnderTest(this.mockUserManager);
 
         var newUser = new CreateUserCommand
         {
@@ -78,10 +84,10 @@ public class CreateUserCommandTests
     public async Task CreateUser_ShouldThrowIdentityException_WhenErrorOccurs()
     {
         // Arrange
-        this.mockUserManager.Setup(m => m.CreateAsync(It.IsAny<ApplicationUser>(), It.IsAny<string>()).Result)
-                            .Returns(IdentityResult.Failed(new IdentityError { Code = "101", Description = "Something went wrong"}));
+        this.mockUserManager.CreateAsync(Arg.Any<ApplicationUser>(), Arg.Any<string>())
+                            .ReturnsForAnyArgs(IdentityResult.Failed(new IdentityError { Code = "101", Description = "Something went wrong" }));
 
-        var sut = this.CreateSystemUnderTest(this.mockUserManager.Object);
+        var sut = this.CreateSystemUnderTest(this.mockUserManager);
 
         var newUser = new CreateUserCommand
         {

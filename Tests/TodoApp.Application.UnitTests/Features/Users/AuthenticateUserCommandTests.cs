@@ -9,7 +9,7 @@ namespace TodoApp.Application.UnitTests.Features.Users;
 
 public class AuthenticateUserCommandTests
 {
-    private readonly Mock<UserManager<ApplicationUser>> mockUserManager = TestHelpers.CreateMockUserManager<ApplicationUser>();
+    private UserManager<ApplicationUser> mockUserManager = TestHelpers.CreateMockUserManager<ApplicationUser>();
     private readonly JwtOptions jwtOptions = new()
     {
         Audience = "http://audience",
@@ -19,7 +19,13 @@ public class AuthenticateUserCommandTests
     };
 
     [SetUp]
-    public void TestCastSetUp() => this.mockUserManager.Reset();
+    public void TestCastSetUp() => this.mockUserManager = TestHelpers.CreateMockUserManager<ApplicationUser>();
+
+    [TearDown]
+    public void TestCaseTearDown() => this.mockUserManager.Dispose();
+
+    [OneTimeTearDown]
+    public void TestFixtureTearDown() => this.mockUserManager.Dispose();
 
     [Test]
     public void Contructor_ShouldThrowNullReferenceException_WhenUserManagerIsNull()
@@ -32,7 +38,7 @@ public class AuthenticateUserCommandTests
     [Test]
     public void Contructor_ShouldThrowNullReferenceException_WhenJwtOptionsIsNull()
     {
-        var action = () => new AuthenticateUserCommandHandler(this.mockUserManager.Object, null!);
+        var action = () => new AuthenticateUserCommandHandler(this.mockUserManager, null!);
 
         action.Should().ThrowExactly<ArgumentNullException>().WithParameterName("jwtOptions");
     }
@@ -40,7 +46,7 @@ public class AuthenticateUserCommandTests
     [Test]
     public void Constructor_ShouldInstantiate_WithValidParameters()
     {
-        var sut = this.CreateSystemUnderTest(this.mockUserManager.Object);
+        var sut = this.CreateSystemUnderTest(this.mockUserManager);
 
         sut.Should().NotBeNull();
     }
@@ -49,8 +55,8 @@ public class AuthenticateUserCommandTests
     public async Task Authenticate_ShouldNotReturnToken_WhenUserInvalid()
     {
         // Arrange
-        this.mockUserManager.Setup(m => m.CheckPasswordAsync(It.IsAny<ApplicationUser>(), It.IsAny<string>()).Result).Returns(false);
-        var sut = this.CreateSystemUnderTest(this.mockUserManager.Object);
+        this.mockUserManager.CheckPasswordAsync(Arg.Any<ApplicationUser>(), Arg.Any<string>()).ReturnsForAnyArgs(false);
+        var sut = this.CreateSystemUnderTest(this.mockUserManager);
 
         var authenticateUser = new AuthenticateUserCommand
         {
@@ -75,9 +81,9 @@ public class AuthenticateUserCommandTests
             Password = "password"
         };
 
-        this.mockUserManager.Setup(m => m.FindByNameAsync(authenticateUser.Username).Result).Returns(new ApplicationUser { Email = authenticateUser.Username, UserName = authenticateUser.Username });
-        this.mockUserManager.Setup(m => m.CheckPasswordAsync(It.IsAny<ApplicationUser>(), It.IsAny<string>()).Result).Returns(true);
-        var sut = this.CreateSystemUnderTest(this.mockUserManager.Object);
+        this.mockUserManager.CheckPasswordAsync(Arg.Any<ApplicationUser>(), Arg.Any<string>()).ReturnsForAnyArgs(true);
+        this.mockUserManager.FindByNameAsync(authenticateUser.Username).Returns(new ApplicationUser { Email = authenticateUser.Username, UserName = authenticateUser.Username });
+        var sut = this.CreateSystemUnderTest(this.mockUserManager);
 
         // Act
         var result = await sut.Handle(authenticateUser, CancellationToken.None);

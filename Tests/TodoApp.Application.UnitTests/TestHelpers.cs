@@ -4,13 +4,13 @@ namespace TodoApp.Application.UnitTests;
 
 public static class TestHelpers
 {
-    public static Mock<UserManager<TUser>> CreateMockUserManager<TUser>() where TUser : class
+    public static UserManager<TUser> CreateMockUserManager<TUser>() where TUser : class
     {
-        var store = new Mock<IUserStore<TUser>>();
-        var manager = new Mock<UserManager<TUser>>(store.Object, null, null, null, null, null, null, null, null);
+        var store = Substitute.For<IUserStore<TUser>>();
+        var manager = Substitute.For<UserManager<TUser>>(store, null, null, null, null, null, null, null, null);
 
-        manager.Object.UserValidators.Add(new UserValidator<TUser>());
-        manager.Object.PasswordValidators.Add(new PasswordValidator<TUser>());
+        manager.UserValidators.Add(new UserValidator<TUser>());
+        manager.PasswordValidators.Add(new PasswordValidator<TUser>());
 
         return manager;
     }

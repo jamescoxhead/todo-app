@@ -1,6 +1,8 @@
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using NSubstitute.ExceptionExtensions;
+using NSubstitute.Extensions;
 using TodoApp.Api.Controllers;
 using TodoApp.Application.Exceptions;
 using TodoApp.Application.TodoTasks.Commands;
@@ -13,17 +15,17 @@ namespace TodoApp.Api.UnitTests.Controllers;
 [TestFixture]
 public class TodoTasksControllerTests
 {
-    private readonly Mock<ILogger<TodoTasksController>> mockLogger = new();
+    private readonly ILogger<TodoTasksController> mockLogger = Substitute.For<ILogger<TodoTasksController>>();
     private readonly CreateTodoTaskCommandValidator createValidator = new();
-    private readonly Mock<IMediator> mockMediator = new();
+    private IMediator mockMediator = Substitute.For<IMediator>();
 
     [SetUp]
-    public void TestCaseSetUp() => this.mockMediator.Reset();
+    public void TestCaseSetUp() => this.mockMediator = Substitute.For<IMediator>();
 
     [Test]
     public void Constructor_Should_ThrowArgumentNullException_WhenLoggerIsNull()
     {
-        var action = () => new TodoTasksController(null!, this.createValidator, this.mockMediator.Object);
+        var action = () => new TodoTasksController(null!, this.createValidator, this.mockMediator);
 
         action.Should().ThrowExactly<ArgumentNullException>().WithParameterName("logger");
     }
@@ -31,7 +33,7 @@ public class TodoTasksControllerTests
     [Test]
     public void Constructor_Should_ThrowArgumentNullException_WhenCreateValidatorIsNull()
     {
-        var action = () => new TodoTasksController(this.mockLogger.Object, null!, this.mockMediator.Object);
+        var action = () => new TodoTasksController(this.mockLogger, null!, this.mockMediator);
 
         action.Should().ThrowExactly<ArgumentNullException>().WithParameterName("createTodoTaskValidator");
     }
@@ -39,7 +41,7 @@ public class TodoTasksControllerTests
     [Test]
     public void Constructor_Should_ThrowArgumentNullException_WhenMediatorIsNull()
     {
-        var action = () => new TodoTasksController(this.mockLogger.Object, this.createValidator, null!);
+        var action = () => new TodoTasksController(this.mockLogger, this.createValidator, null!);
 
         action.Should().ThrowExactly<ArgumentNullException>().WithParameterName("mediator");
     }
@@ -64,7 +66,7 @@ public class TodoTasksControllerTests
             new TodoTaskDto {Id = 3, Description = "Task 3", DueDate = DateTime.Now.AddMonths(3), IsComplete = false}
         };
 
-        this.mockMediator.Setup(m => m.Send(It.IsAny<GetTodoTasksQuery>(), It.IsAny<CancellationToken>()).Result).Returns(model);
+        this.mockMediator.Send(Arg.Any<GetTodoTasksQuery>(), Arg.Any<CancellationToken>()).ReturnsForAnyArgs(model);
 
         var sut = this.CreateSystemUnderTest();
 
@@ -83,7 +85,7 @@ public class TodoTasksControllerTests
         // Arrange
         var model = Enumerable.Empty<TodoTaskDto>();
 
-        this.mockMediator.Setup(m => m.Send(It.IsAny<GetTodoTasksQuery>(), It.IsAny<CancellationToken>()).Result).Returns(model);
+        this.mockMediator.Send(Arg.Any<GetTodoTasksQuery>(), Arg.Any<CancellationToken>()).ReturnsForAnyArgs(model);
 
         var sut = this.CreateSystemUnderTest();
 
@@ -102,7 +104,7 @@ public class TodoTasksControllerTests
         // Arrange
         var model = new TodoTaskDto { Id = 1, Description = "Task 1", DueDate = DateTime.Now, IsComplete = false };
 
-        this.mockMediator.Setup(m => m.Send(It.IsAny<GetTodoTaskQuery>(), It.IsAny<CancellationToken>()).Result).Returns(model);
+        this.mockMediator.Send(Arg.Any<GetTodoTaskQuery>(), Arg.Any<CancellationToken>()).ReturnsForAnyArgs(model);
         var sut = this.CreateSystemUnderTest();
 
         // Act
@@ -120,7 +122,8 @@ public class TodoTasksControllerTests
         // Arrange
         var model = new TodoTaskDto { Id = 1, Description = "Task 1", DueDate = DateTime.Now, IsComplete = false };
 
-        this.mockMediator.Setup(m => m.Send(new GetTodoTaskQuery { TodoTaskId = model.Id }, It.IsAny<CancellationToken>()).Result).Returns(model);
+        this.mockMediator.When(x => x.Send(new GetTodoTaskQuery { TodoTaskId = model.Id }))
+                         .Do(x => this.mockMediator.Send(new GetTodoTaskQuery { TodoTaskId = model.Id }).ReturnsForAll(model));
         var sut = this.CreateSystemUnderTest();
 
         // Act
@@ -137,7 +140,7 @@ public class TodoTasksControllerTests
         var inputModel = new CreateTodoTaskCommand { Description = "New task", DueDate = DateTime.Now.AddDays(7) };
         var returnModel = new TodoTaskDto { Description = inputModel.Description, DueDate = inputModel.DueDate, Id = 1, IsComplete = false };
 
-        this.mockMediator.Setup(m => m.Send(It.IsAny<CreateTodoTaskCommand>(), It.IsAny<CancellationToken>()).Result).Returns(returnModel);
+        this.mockMediator.Send(Arg.Any<CreateTodoTaskCommand>(), Arg.Any<CancellationToken>()).ReturnsForAnyArgs(returnModel);
         var sut = this.CreateSystemUnderTest();
 
         // Act
@@ -156,7 +159,7 @@ public class TodoTasksControllerTests
         var inputModel = new UpdateTodoTaskCommand { TodoTaskId = 123, IsComplete = true };
         var returnModel = new TodoTaskDto { Description = "Task 123", DueDate = null, Id = inputModel.TodoTaskId, IsComplete = inputModel.IsComplete };
 
-        this.mockMediator.Setup(m => m.Send(inputModel, It.IsAny<CancellationToken>()).Result).Returns(returnModel);
+        this.mockMediator.Send(inputModel, Arg.Any<CancellationToken>()).ReturnsForAnyArgs(returnModel);
         var sut = this.CreateSystemUnderTest();
 
         // Act
@@ -175,7 +178,7 @@ public class TodoTasksControllerTests
         var inputModel = new UpdateTodoTaskCommand { TodoTaskId = 123, IsComplete = true };
         var returnModel = new TodoTaskDto { Description = "Task 123", DueDate = null, Id = 456, IsComplete = inputModel.IsComplete };
 
-        this.mockMediator.Setup(m => m.Send(It.IsAny<UpdateTodoTaskCommand>(), It.IsAny<CancellationToken>()).Result).Returns(returnModel);
+        this.mockMediator.Send(Arg.Any<UpdateTodoTaskCommand>(), Arg.Any<CancellationToken>()).ReturnsForAnyArgs(returnModel);
         var sut = this.CreateSystemUnderTest();
 
         // Act
@@ -190,9 +193,8 @@ public class TodoTasksControllerTests
     {
         // Arrange
         var inputModel = new UpdateTodoTaskCommand { TodoTaskId = 123, IsComplete = true };
-        var returnModel = new TodoTaskDto { Description = "Task 123", DueDate = null, Id = inputModel.TodoTaskId, IsComplete = inputModel.IsComplete };
 
-        this.mockMediator.Setup(m => m.Send(It.IsAny<UpdateTodoTaskCommand>(), It.IsAny<CancellationToken>()).Result).Throws<Exception>();
+        this.mockMediator.Send(Arg.Any<UpdateTodoTaskCommand>(), Arg.Any<CancellationToken>()).ThrowsAsync<Exception>();
         var sut = this.CreateSystemUnderTest();
 
         // Act
@@ -206,7 +208,6 @@ public class TodoTasksControllerTests
     public async Task DeleteTodoTask_ShouldReturnNoContent_IfDeleted()
     {
         // Arrange
-        this.mockMediator.Setup(m => m.Send(It.IsAny<DeleteTodoTaskCommand>(), It.IsAny<CancellationToken>()));
         var sut = this.CreateSystemUnderTest();
 
         // Act
@@ -220,7 +221,7 @@ public class TodoTasksControllerTests
     public async Task DeleteTodoTask_ShouldReturnBadRequestResult_IfNotDeleted()
     {
         // Arrange
-        this.mockMediator.Setup(m => m.Send(It.IsAny<DeleteTodoTaskCommand>(), It.IsAny<CancellationToken>())).ThrowsAsync(new NotFoundException("TodoTask", 123));
+        this.mockMediator.Send(Arg.Any<DeleteTodoTaskCommand>(), Arg.Any<CancellationToken>()).ThrowsAsync(new NotFoundException("TodoTask", 123));
         var sut = this.CreateSystemUnderTest();
 
         // Act
@@ -230,5 +231,5 @@ public class TodoTasksControllerTests
         result.Should().NotBeNull().And.BeOfType<NotFoundResult>();
     }
 
-    private TodoTasksController CreateSystemUnderTest() => new(this.mockLogger.Object, this.createValidator, this.mockMediator.Object);
+    private TodoTasksController CreateSystemUnderTest() => new(this.mockLogger, this.createValidator, this.mockMediator);
 }
