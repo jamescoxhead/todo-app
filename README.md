@@ -24,7 +24,19 @@ Each project within the solution has associated automated tests.
 ## Development workflow
 To keep things simple this repo loosely follows [Trunk-based development](https://trunkbaseddevelopment.com/). Small changes in the main branch are fine if they do not break the build. Larger changes and external contributions should be in a feature branch off of the main branch. External contributions are merged in via a pull request.
 
+Commit messages follow [conventional commits](https://www.conventionalcommits.org/en/v1.0.0/) guidelines. Commit messages should be prefixed with one of the following:
+
+* ⭐ feat(feature-name) - a new feature
+* 🔨 fix - a bugfix
+* 🥱 chore - updates to the repo
+* 🏗️ ci - updates to CI/CD pipelines
+* 📄 docs - documentation updates
+* 🔁 refactor - updates and improvements to existing code
+* 🖌️ style - formatting updates
+* 🧪 test - changes to automated tests
+
 ## Roadmap
 * Add a front end - maybe Blazor?
 * Gradually expand the application to include more functionality. *TODO: create a backlog*
-* Identity
+* Replace ADO pipelines with GitHub actions
+* Deployments. Application and infrastructure (Bicep)
