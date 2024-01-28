@@ -1,9 +1,5 @@
 trigger: none
 
-pr:
-  branches:
-    include:
-    - main
 
 pool:
   vmImage: 'ubuntu-latest'
@@ -39,7 +35,7 @@ steps:
     projects: '**/*.@(Unit|Integration)Tests.csproj'
     arguments: '--configuration $(buildConfiguration) --no-restore --settings coverlet.runsettings'
     publishTestResults: true
-    
+
 - task: SnykSecurityScan@1
   displayName: Snyk Security Scan
   inputs:

@@ -1,0 +1,38 @@
+name: build
+
+on:
+  push:
+    branches:
+      - "main"
+    paths-ignore:
+      - ".editorconfig"
+      - ".gitattributes"
+      - ".gitignore"
+      - "README.md"
+
+env:
+  DOT_NET_VERSION: 7.x
+  SOLUTION: TodoApp.sln
+  BUILD_CONFIGURATON: Release
+
+jobs:
+  build:
+    runs-on: 'ubuntu-latest'
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: $DOT_NET_VERSION
+
+      - name: Restore NuGet packages
+        run: dotnet restore $SOLUTION
+
+      - name: Build solution
+        run: dotnet build $SOLUTION --configuration $BUILD_CONFIGURATION --no-restore
+
+      - name: Run tests
+        run: dotnet test --no-build --configuration $BUILD_CONFIGURATION
