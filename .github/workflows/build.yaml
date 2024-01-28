@@ -56,4 +56,4 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: api
-          path: ./Source.TodoApp.Api/publish/publish.zip
+          path: ./Source/TodoApp.Api/publish/publish.zip
