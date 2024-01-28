@@ -11,7 +11,7 @@ on:
       - "README.md"
 
 env:
-  DOT_NET_VERSION: 7.x
+  DOTNET_VERSION: 7.x
   SOLUTION: TodoApp.sln
   BUILD_CONFIGURATON: Release
 
@@ -23,16 +23,16 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Setup .NET
+      - name: Setup .NET ${{env.DOTNET_VERSION}}
         uses: actions/setup-dotnet@v3
         with:
-          dotnet-version: $DOT_NET_VERSION
+          dotnet-version: ${{env.DOTNET_VERSION}}
 
       - name: Restore NuGet packages
-        run: dotnet restore $SOLUTION
+        run: dotnet restore ${{env.SOLUTION}}
 
       - name: Build solution
-        run: dotnet build $SOLUTION --configuration $BUILD_CONFIGURATION --no-restore
+        run: dotnet build ${{env.SOLUTION}} --configuration ${{env.BUILD_CONFIGURATON}} --no-restore
 
       - name: Run tests
-        run: dotnet test --no-build --configuration $BUILD_CONFIGURATION
+        run: dotnet test ${{env.SOLUTION}} --no-build --configuration ${{env.BUILD_CONFIGURATON}}
