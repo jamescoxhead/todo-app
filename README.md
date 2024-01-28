@@ -1,15 +1,15 @@
 # Todo App
-[![Build Status](https://dev.azure.com/jamescoxhead/Todo%20App/_apis/build/status%2FCI%20Build?branchName=main)](https://dev.azure.com/jamescoxhead/Todo%20App/_build/latest?definitionId=8&branchName=main)
+[![build](https://github.com/jamescoxhead/todo-app/actions/workflows/build.yaml/badge.svg)](https://github.com/jamescoxhead/todo-app/actions/workflows/build.yaml)
 
 This application serves as a sandbox for various patterns, libraries, tools etc, and will probably become one of the more over-engineered to-do apps
 
 ## Technologies
-* .NET 6
+* .NET 7
 * Web API
 * Data stored in **SQL Server** and accessed using **Entity Framework Core**
 * Model validation using **FluentValidation**
 * Object mapping using **Automapper**
-* Unit testing using **NUnit**, **Moq**, and **FluentAssertions**
+* Unit testing using **NUnit**, **NSubstitute**, and **FluentAssertions**
 
 ## Solution overview
 I try to follow Clean Architecture principles in the solution architecture. The solution architecture is loosely based off of the [Clean Architecture Solution Template](https://github.com/jasontaylordev/CleanArchitecture).
@@ -38,5 +38,4 @@ Commit messages follow [conventional commits](https://www.conventionalcommits.or
 ## Roadmap
 * Add a front end - maybe Blazor?
 * Gradually expand the application to include more functionality. *TODO: create a backlog*
-* Replace ADO pipelines with GitHub actions
 * Deployments. Application and infrastructure (Bicep)
